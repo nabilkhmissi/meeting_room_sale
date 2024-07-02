@@ -1,0 +1,31 @@
+<nav class="navbar navbar-expand-lg main-navbar sticky">
+  <div class="form-inline me-auto">
+    <ul class="navbar-nav msr-3">
+      <li>
+        <a data-toggle="sidebar" class="nav-link nav-link-lg
+									collapse-btn" (click)="mobileMenuSidebarOpen($event,'overlay-open')">
+          <i-feather name="menu"></i-feather>
+        </a></li>
+      <li>
+      </li>
+    </ul>
+  </div>
+  <ul class="navbar-nav navbar-right">
+<div *ngIf="user">
+    <li ngbDropdown>
+      <a ngbDropdownToggle data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+        <span style="color: black;margin-right: 10px;">{{user.name}}</span>
+        <img alt="image" src="{{PICS_URL+user.image}}" class="user-img-radious-style collapse-btn"> 
+        <span class="d-sm-none d-lg-inline-block"></span>
+      </a>
+      <div ngbDropdownMenu class="dropdown-menu dropdown-menu-right header-dropdown pullDown">
+        <!-- <div class="dropdown-title">Hello {{user.name}}..</div> -->
+        <!-- <div class="dropdown-divider"></div> -->
+        <a href="javascript:void(0);" class="dropdown-item has-icon text-danger" (click)="logout()"> <i class="fas fa-sign-out-alt"></i>
+          Logout
+        </a>
+      </div>
+    </li>
+  </div>
+  </ul>
+</nav>
