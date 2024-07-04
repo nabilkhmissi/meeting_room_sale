@@ -10,6 +10,4 @@ router.post("", userCtrl.login);
 router.get("/getall", userCtrl.findAllUsers);
 router.get("/getUserByID/:id",userCtrl.getUserById);
 
-// router.post("", userCtrl.addUser);
-
 module.exports = router;

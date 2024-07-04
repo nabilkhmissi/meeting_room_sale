@@ -2,9 +2,9 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { User } from '../models/user';
 import { Router } from '@angular/router';
-import { FormGroup } from '@angular/forms';
-import { Observable, catchError, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { AuthResponse } from '../models/auth-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -12,18 +12,31 @@ import { environment } from 'src/environments/environment';
 export class AuthService {
   readonly baseUrl = environment.apiUrl;
   private api = `${this.baseUrl}user/`;
-  
-   token!: string;
-   isAuthenticated = false;
-   userID!: string
-   user!: User;
-   image!: string
-   name!:string
-   role!:string
+
+  private authenticatedUserSubject = new BehaviorSubject<any | null>(null);
+  authenticatedUser$ = this.authenticatedUserSubject.asObservable();
+
+  readonly AUTH_KEY = "MEETING_ROOM_AUTH";
+
+
+  setAuthenticatedUser(auth : any){
+    this.authenticatedUserSubject.next(auth);
+  }
+
+  getAuthenticatedUser() : AuthResponse{
+    return this.authenticatedUserSubject.value;
+  }
+
   constructor(private http: HttpClient, private router: Router) {}
  
   login(email: string, password: string): Observable<any> {
-    return this.http.post<{ token: string, name:string, image: string, id: string , role:string }>(this.api, { email: email, password: password })
+    return this.http.post<AuthResponse>(this.api, { email: email, password: password }).pipe(
+      tap(res => {
+        this.authenticatedUserSubject.next(res);
+        this.saveAuthToLS(res);
+        this.router.navigate(['/dashboard']);
+      })
+    )
   }
   signup(user: FormData) {
     let success;
@@ -42,19 +55,10 @@ export class AuthService {
     return success;
   }
   logout() {
-    // remove user from local storage to log user out
+    this.authenticatedUserSubject.next(null);
     this.clearAuthData()
     this.router.navigate(['/authentication/signin'])
   }
-
-  checkAuth() {
-    if (!(this.isAuthenticated)) {
-      this.router.navigate(['login'])
-    }
-    return false;
-  }
-  getToken() { return this.token; }
-  getUserId() { return this.userID }
 
   setAuthTimer(expiresIn: number) {
     setTimeout(() => {
@@ -63,33 +67,28 @@ export class AuthService {
     }, expiresIn * 1000);
   }
 
-   saveAuthData(token: string, name: string, image: string,userID:string, role :string) {
-    localStorage.setItem("token", token);
-    localStorage.setItem("name", name);
-    localStorage.setItem("userId", userID);
-    localStorage.setItem("image", image);
-    localStorage.setItem("role", role);
+  saveAuthToLS(auth : AuthResponse){
+    localStorage.setItem(this.AUTH_KEY, JSON.stringify(auth));
+  }
+
+  removeAuthUserFromLS(){
+    localStorage.removeItem(this.AUTH_KEY);
+  }
+
+  autoLogin(){
+    const auth = localStorage.getItem(this.AUTH_KEY);
+    if(auth){
+      this.authenticatedUserSubject.next(JSON.parse(auth));
+      this.router.navigate(['/dashboard']);
+      return;
+    }
+    this.authenticatedUserSubject.next(null);
+    this.router.navigate(['/authentication/signin'])
   }
 
    clearAuthData() {
-    localStorage.removeItem("name");
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    localStorage.removeItem("image");
-    localStorage.removeItem("role");
-  }
-
-  //  getAuthData() {
-  //   const token = localStorage.getItem("token");
-  //   const expirationDate = localStorage.getItem("expiration")
-  //   this.userID != localStorage.getItem("userId")
-  //   if (!token || !expirationDate) return null;
-  //   return { token: token, expirationDate: new Date(expirationDate) 
-  //   }
-  // }
-  getUser() {
-    return this.http.get<User>(this.api +"getUserByID/"+ localStorage.getItem("userId"))
-  }
+    localStorage.removeItem(this.AUTH_KEY);
+  }  
  
   sendCode(email: string) {
     let success;
@@ -116,7 +115,7 @@ export class AuthService {
     let success;
     var data = {
       code: code,
-      email: localStorage.getItem("email")
+      email: this.getAuthenticatedUser().email!
     }
     this.http.post(this.api+"validateCode", data).subscribe(response => {
       if (!response) {
@@ -134,18 +133,17 @@ export class AuthService {
   changePassword(pass: string) {
     let success;
     pass
-    let id= localStorage.getItem("idFP")
-    let mail= localStorage.getItem("email")
+    let id= this.getAuthenticatedUser().id;
+    let mail= this.getAuthenticatedUser().email;
       this.http.patch(this.api+"change-psw/"+id, {password:pass,email:mail}).subscribe(response => {
       if (!response) {
         success = false;
         return null;
       }
       success = true
-      this.router.navigate(["/authentication/signin"])
-      localStorage.removeItem("email")
-      localStorage.removeItem("idFP")
-      
+      this.router.navigate(["/authentication/signin"]);
+      localStorage.removeItem("email");
+      localStorage.removeItem("idFP");      
       return response
     })
     return success;

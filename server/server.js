@@ -23,19 +23,23 @@ app.use("/api/material/event", eventRoute);
 initAdminAccount();
 
 async function initAdminAccount() {
-    const existAdmin = await UserModel.findOne({ email : "admin@mail.com" });
-    if(existAdmin){
-        return;
+    try {
+        const existAdmin = await UserModel.findOne({ email : "admin@mail.com" });
+        if(existAdmin){
+            return;
+        }
+        const hashedPassword = await bcrypt.hash("admin", 10);
+        const admin = await UserModel({
+            email : "admin@mail.com",
+            password : hashedPassword,
+            role : "Admin",
+            name : "Admin"
+        })
+        await admin.save();
+        console.log("---------- ADMIN ACCOUNT CREATED -----------");
+    } catch (error) {
+        return res.status(500).send({ message : error })
     }
-    const hashedPassword = await bcrypt.hash("admin", 10);
-    const admin = await UserModel({
-        email : "admin@mail.com",
-        password : hashedPassword,
-        role : "Admin",
-        name : "Admin"
-    })
-    await admin.save();
-    console.log("---------- ADMIN ACCOUNT CREATED -----------");
 }
 
 const PORT = 3009;

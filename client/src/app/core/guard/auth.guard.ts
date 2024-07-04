@@ -10,7 +10,8 @@ export class AuthGuard  {
   constructor(private authService: AuthService, private router: Router) {}
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    if (this.authService.getUser()) {
+    const authUser = this.authService.getAuthenticatedUser();
+    if (authUser) {
       return true;
     }
     this.router.navigate(['/authentication/signin']);

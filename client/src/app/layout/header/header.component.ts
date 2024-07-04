@@ -51,14 +51,14 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     private router: Router,
   ) {}
 
+  userImage = "";
+  username = "";
+
   ngOnInit() {
-    this.config = this.configService.configData;
-   
-    
-    this.authService.getUser().subscribe(resultat => {
-      this.user = resultat as User;
-      //console.log(this.user._id,":", this.user.firstName ,":",this.user.lastName,":", this.user.title);
-    });
+    this.config = this.configService.configData;  
+    const auth = this.authService.getAuthenticatedUser();
+    this.userImage = auth.image!;   
+    this.username = auth.name!;   
   }
   ngAfterViewInit() {
     if (localStorage.getItem('theme')) {

@@ -12,13 +12,12 @@ const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: '', redirectTo: '/authentication/signin', pathMatch: 'full' },
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
         path: 'dashboard',
         loadChildren: () =>
           import('./dashboard/dashboard.module').then((m) => m.DashboardModule),
       },
-
     ],
   },
   {
@@ -27,8 +26,6 @@ const routes: Routes = [
     loadChildren: () =>
       import('./authentication/authentication.module').then((m) => m.AuthenticationModule),
   },
-
-
   { path: "**", component: Page404Component },
 ];
 

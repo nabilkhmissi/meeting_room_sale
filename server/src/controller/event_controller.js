@@ -2,8 +2,7 @@ const { EventModel } = require("../models")
 const { ObjectId } = require("mongodb");
 
 module.exports.findAllEvents = async (req, res) => {
-
-
+  try {
     const events = await EventModel.find({}).populate("room");
     if (events.length > 0) {
         const clean_events = events.map(event => ({
@@ -16,8 +15,12 @@ module.exports.findAllEvents = async (req, res) => {
         return res.status(200).send({ message: "Events retrieved successfully", data: clean_events });
     }
     return res.status(200).send({ message: "Events retrieved successfully", data: events });
+  } catch (error) {
+    return res.status(500).send({ message : error })
+  }
 };
 module.exports.addEvent = async (req, res) => {
+  try {
     let new_event_data
     console.log("=============== ADD EVENT ===============")
     const eventExist = await EventModel.find({
@@ -39,12 +42,19 @@ module.exports.addEvent = async (req, res) => {
     }
     const new_event = await EventModel.create(new_event_data);
     return res.status(200).send({ message: "event added successfully", data: new_event });
+  } catch (error) {
+    return res.status(500).send({ message : error })
+  }
 };
 module.exports.findEventsByRoomID = async (req, res) => {
+  try {
     console.log("=============== FIND EVENTS BY ROOM ID ===============")
     const roomId = req.params.id;
     const events = await EventModel.find({ room: roomId });
     return res.status(200).send({ message: "Events retrieved successfully", data: events });
+  } catch (error) {
+    return res.status(500).send({ message : error })
+  }
 };
 module.exports.getEventById = async function(req,res){
     console.log("=============== FIND EVENT BY ID ===============")
@@ -60,7 +70,7 @@ module.exports.getEventById = async function(req,res){
       }
     }
     catch (error) {
-      res.status(500).json(error);
+      return res.status(500).send({ message : error })
     }
 };
 module.exports.deleteEvent = async function (req, res) {
@@ -72,7 +82,7 @@ module.exports.deleteEvent = async function (req, res) {
       const event = await EventModel.findByIdAndDelete({ _id: ID });
       res.status(200).json({ message: "Event deleted successfully", data: event });
     } catch (error) {
-      res.status(404).json(error);
+      return res.status(500).send({ message : error })
     }
 };
 module.exports.updateEvent = async function (req, res) {
@@ -91,7 +101,7 @@ module.exports.updateEvent = async function (req, res) {
         if (updatedEvent) 
             return res.status(200).json({ message: "Event deleted successfully", data: updatedEvent });
     } catch (error) {
-      res.status(500).json(error);
+      return res.status(500).send({ message : error })
     }
   };
 

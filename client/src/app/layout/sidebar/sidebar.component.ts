@@ -31,8 +31,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   // userType?: string;
   headerHeight = 60;
   currentRoute?: string;
-  user! : User;
-  userRole:string=""
+  username = "";
+  userRole = "";
+  userImage = "";
   routerObj;
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -77,17 +78,15 @@ export class SidebarComponent implements OnInit, OnDestroy {
     }
   }
   ngOnInit() {
-    if (this.authService.getUser()) {
+    if (this.authService.getAuthenticatedUser()) {
       this.sidebarItems = ROUTES.filter((sidebarItem) => sidebarItem);
     }
     this.initLeftSidebar();
     this.bodyTag = this.document.body;
-    this.authService.getUser().subscribe(resultat => {
-    this.user = resultat as User;
-    // console.log(this.user)
-  });
-  this.userRole = localStorage.getItem('roles')!
-  // this.sidebarItems = ROUTES.filter((sidebarItem) => sidebarItem.roles!.indexOf(this.userRole)!==-1 );
+    const auth =  this.authService.getAuthenticatedUser();
+    this.username = auth.name!;
+    this.userImage = auth.image!;
+    this.userRole = auth.role!;
     this.initLeftSidebar();
   }
   ngOnDestroy() {

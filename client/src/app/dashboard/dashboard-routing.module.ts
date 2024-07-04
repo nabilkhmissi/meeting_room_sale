@@ -8,7 +8,7 @@ import { RoomComponent } from './room/room.component';
 const routes: Routes = [
   {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'main',
     pathMatch: 'full',
   },
   {

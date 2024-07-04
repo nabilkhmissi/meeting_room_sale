@@ -52,27 +52,18 @@ export class SigninComponent implements OnInit {
     this.error = '';
 
     if (this.loginForm.invalid) {
-      this.error = 'Username or Password is invalid !';
+      this.toastr.error("invalid email / Password");
       return;
     } else{
-        this.authService.login(this.loginForm.value.email, this.loginForm.value.password).subscribe((response) => {
-            this.token = response.token;
-              if (this.token) {
-                this.isAuthenticated = true;
-                this.userID = response.id;
-                this.name = response.name
-                this.image = response.image
-                this.role = response.role
-                this.authService.saveAuthData(this.token,this.name, this.image,this.userID,this.role)
-                this.toastr.success("Login success", "Success");
-                this.router.navigate(['dashboard/main']);
-            }
-            },
-            (error)=>{
-              this.isAuthenticated=false
-              this.toastr.error( error,"something went wrong!");
-            }
-            )
+        this.authService.login(this.loginForm.value.email, this.loginForm.value.password).subscribe(
+          (response) => {
+            this.toastr.success("Login success", "Success");
+            this.router.navigate(['/dashboard']);
+          },
+          (error)=>{
+            this.toastr.error( error,"something went wrong!");
+          }
+        )
       }
    } 
   

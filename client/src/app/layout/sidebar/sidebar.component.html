@@ -6,18 +6,18 @@
           class="logo-name">Room Booking</span>
       </a>
     </div>
-    <div class="menu" *ngIf="user">
+    <div class="menu">
       <ng-scrollbar [style.height]="listMaxHeight + 'px'" visibility="hover">
         <ul class="list">
           <li class="sidebar-user-panel">
             <div class="user-panel">
               <div class=" image">
-                  <img src="{{PICS_URL+user.image}}" class="img-circle user-img-circle" alt="User Image" />
+                  <img src="{{PICS_URL+userImage}}" class="img-circle user-img-circle" alt="User Image" />
               </div>
             </div>
             <div class="profile-usertitle">
               <a routerLink="/dashboard/profile">
-                <div class="sidebar-userpic-name"> {{user.name}} </div>
+                <div class="sidebar-userpic-name"> {{username}} </div>
               </a>
             </div>
           </li>
