@@ -38,7 +38,8 @@ async function initAdminAccount() {
         await admin.save();
         console.log("---------- ADMIN ACCOUNT CREATED -----------");
     } catch (error) {
-        return res.status(500).send({ message : error })
+        console.log(error);
+        // return res.status(500).send({ message : error })
     }
 }
 
